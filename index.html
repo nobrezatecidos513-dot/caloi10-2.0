@@ -340,6 +340,41 @@
         z-index: 30;
       }
 
+      .quick-menu {
+        position: absolute;
+        top: 62px;
+        right: 12px;
+        z-index: 36;
+        display: none;
+        min-width: 190px;
+        padding: 6px;
+        background: rgba(8, 18, 40, 0.96);
+        border: 1px solid rgba(255, 255, 255, 0.22);
+        border-radius: 12px;
+        box-shadow: 0 12px 28px rgba(0, 0, 0, 0.4);
+      }
+
+      .quick-menu.show { display: grid; }
+
+      .quick-menu button {
+        border: 0;
+        border-radius: 8px;
+        padding: 12px;
+        background: transparent;
+        color: #fff;
+        text-align: left;
+        font: inherit;
+        font-size: 14px;
+        cursor: pointer;
+      }
+
+      .quick-menu button:hover,
+      .quick-menu button:focus-visible {
+        background: rgba(255, 216, 87, 0.16);
+        outline: 2px solid var(--gold);
+        outline-offset: -2px;
+      }
+
       #pedalBtn {
         position: absolute;
         left: 50%;
@@ -602,6 +637,15 @@
       .rankName { flex: 1; font-size: 14px; color: #fff; }
       .rankBal { font-size: 13px; font-weight: 800; color: var(--gold); }
 
+      .ranking-note {
+        width: min(340px, 100%);
+        margin: 0 auto 12px;
+        color: rgba(255, 255, 255, 0.72);
+        font-size: 12px;
+        line-height: 1.5;
+        text-align: center;
+      }
+
       .statRow {
         width: min(340px, 100%);
         margin: 0 auto 8px auto;
@@ -647,6 +691,23 @@
 
       .dailyBtn:disabled {
         opacity: 0.5;
+      }
+
+      .questTrack {
+        height: 10px;
+        margin: 0 0 14px;
+        overflow: hidden;
+        border-radius: 10px;
+        background: rgba(0, 0, 0, 0.45);
+      }
+
+      .questTrack span {
+        display: block;
+        width: 0;
+        height: 100%;
+        border-radius: inherit;
+        background: linear-gradient(90deg, var(--green), #b7f2b6);
+        transition: width 0.2s ease;
       }
 
       .closeX {
@@ -720,7 +781,12 @@
         </div>
       </div>
 
-      <button id="closeBtn" type="button">✕</button>
+      <button id="closeBtn" type="button" aria-label="Abrir menu" aria-expanded="false" aria-controls="quickMenu">☰</button>
+      <nav class="quick-menu" id="quickMenu" aria-label="Menu do jogo">
+        <button type="button" data-screen="shop">🛒 Loja</button>
+        <button type="button" data-screen="ranking">🏆 Ranking</button>
+        <button type="button" data-screen="stats">📊 Estatísticas</button>
+      </nav>
       <div id="bike">🚴</div>
       <button id="pedalBtn" type="button">🚴 PEDALAR</button>
       <button id="pollBtn" type="button">🧠 COPILOTO</button>
@@ -746,7 +812,8 @@
 
       <div id="rankingScreen" class="screen">
         <button class="closeX" type="button" data-close="ranking">✕</button>
-        <div class="screenTitle">🏆 RANKING</div>
+        <div class="screenTitle">🏁 RANKING DE DEMONSTRAÇÃO</div>
+        <p class="ranking-note">Os outros ciclistas são personagens de demonstração. Seu saldo e progresso são salvos somente neste dispositivo.</p>
         <div id="rankingList" class="list"></div>
       </div>
 
@@ -757,6 +824,12 @@
           <h3>🎁 RECOMPENSA DIÁRIA</h3>
           <p id="dailyStatus">Volte todo dia e ganhe bônus!</p>
           <button type="button" id="dailyBtn" class="dailyBtn">PEGAR</button>
+        </div>
+        <div class="dailyBox">
+          <h3>🎯 META DO DIA</h3>
+          <p id="questStatus">Pedale 25 vezes para ganhar uma recompensa.</p>
+          <div class="questTrack" id="questTrack" role="progressbar" aria-label="Progresso da meta diária" aria-valuemin="0" aria-valuemax="25" aria-valuenow="0"><span id="questFill"></span></div>
+          <button type="button" id="questBtn" class="dailyBtn" disabled>25 PEDALADAS</button>
         </div>
         <div id="statsList"></div>
       </div>
@@ -780,7 +853,10 @@
         lastDaily: "caloi_lastDaily",
         bau: "caloi_bau",
         autoPilot: "caloi_auto_pilot",
-        copilotOpen: "caloi_copilot_open"
+        copilotOpen: "caloi_copilot_open",
+        questDate: "caloi_quest_date",
+        questPedals: "caloi_quest_pedals",
+        questClaimed: "caloi_quest_claimed"
       };
 
       const BIKES = [
@@ -812,6 +888,9 @@
         bau: readInt(STORAGE_KEYS.bau, 0),
         autoPilot: readBool(STORAGE_KEYS.autoPilot, false),
         copilotOpen: readBool(STORAGE_KEYS.copilotOpen, true),
+        questDate: readString(STORAGE_KEYS.questDate, ""),
+        questPedals: readInt(STORAGE_KEYS.questPedals, 0),
+        questClaimed: readBool(STORAGE_KEYS.questClaimed, false),
         posX: 50,
         lastPedal: 0,
         busy: false
@@ -830,6 +909,8 @@
       const popupText = document.getElementById("popupText");
       const copilotPanel = document.getElementById("copilotPanel");
       const copilotMsg = document.getElementById("copilotMsg");
+      const popupQueue = [];
+      let popupActive = false;
 
       function readInt(key, fallback) {
         try {
@@ -885,6 +966,9 @@
         localStorage.setItem(STORAGE_KEYS.bau, String(state.bau));
         localStorage.setItem(STORAGE_KEYS.autoPilot, state.autoPilot ? "1" : "0");
         localStorage.setItem(STORAGE_KEYS.copilotOpen, state.copilotOpen ? "1" : "0");
+        localStorage.setItem(STORAGE_KEYS.questDate, state.questDate);
+        localStorage.setItem(STORAGE_KEYS.questPedals, String(state.questPedals));
+        localStorage.setItem(STORAGE_KEYS.questClaimed, state.questClaimed ? "1" : "0");
       }
 
       function xpNeeded(level) {
@@ -911,6 +995,7 @@
         copilotPanel.classList.toggle("show", state.copilotOpen);
         updateCopilotMessage();
         updateDailyStatus();
+        updateQuestStatus();
       }
 
       function updateCopilotMessage() {
@@ -927,19 +1012,37 @@
       }
 
       function showPopup(title, text) {
-        popupTitle.textContent = title;
-        popupText.textContent = text;
+        popupQueue.push({ title, text });
+        if (!popupActive) presentNextPopup();
+      }
+
+      function presentNextPopup() {
+        const next = popupQueue.shift();
+        if (!next) {
+          popupActive = false;
+          return;
+        }
+
+        popupActive = true;
+        popupTitle.textContent = next.title;
+        popupText.textContent = next.text;
         modal.classList.add("show");
       }
 
       function closePopup() {
         modal.classList.remove("show");
+        if (popupQueue.length) {
+          setTimeout(presentNextPopup, 180);
+        } else {
+          popupActive = false;
+        }
       }
 
-      function spawnCoin() {
+      function spawnCoin(amount) {
         const c = document.createElement("div");
         c.className = "coin";
-        c.textContent = "💰";
+        c.textContent = "+" + amount;
+        c.setAttribute("aria-hidden", "true");
         c.style.left = state.posX + "%";
         c.style.bottom = "30%";
         app.appendChild(c);
@@ -969,6 +1072,8 @@
       function pedal() {
         if (state.busy) return;
 
+        ensureDailyQuest();
+
         const now = Date.now();
         const delta = now - state.lastPedal;
         state.streak = delta < 2000 ? state.streak + 1 : 1;
@@ -986,6 +1091,7 @@
         state.xp += 1;
         state.totalGanho += ganho;
         state.bau += ganho;
+        state.questPedals = Math.min(25, state.questPedals + 1);
         state.posX = Math.max(15, Math.min(85, state.posX + (Math.random() * 22 - 11)));
 
         bikeEl.style.transform = "translateX(-50%) rotate(-10deg) scale(1.08)";
@@ -1037,7 +1143,7 @@
           showPopup("🎁 BAÚ!", `+${premio} CALOI`);
         }
 
-        spawnCoin();
+        spawnCoin(ganho);
         save();
         renderUI();
       }
@@ -1150,6 +1256,54 @@
         }
       }
 
+      function ensureDailyQuest() {
+        const today = new Date().toDateString();
+        if (state.questDate === today) return;
+
+        state.questDate = today;
+        state.questPedals = 0;
+        state.questClaimed = false;
+        save();
+      }
+
+      function updateQuestStatus() {
+        const progress = Math.min(25, state.questPedals);
+        const ready = progress >= 25;
+        const status = document.getElementById("questStatus");
+        const track = document.getElementById("questTrack");
+        const fill = document.getElementById("questFill");
+        const button = document.getElementById("questBtn");
+
+        track.setAttribute("aria-valuenow", String(progress));
+        fill.style.width = (progress / 25 * 100) + "%";
+        status.textContent = state.questClaimed
+          ? "Meta concluída. Volte amanhã para um novo desafio."
+          : ready
+            ? "Meta concluída! Sua recompensa está pronta."
+            : `Pedale ${25 - progress} vezes para completar a meta.`;
+        button.disabled = !ready || state.questClaimed;
+        button.textContent = state.questClaimed
+          ? "RECOMPENSA RESGATADA"
+          : ready
+            ? `RESGATAR ${250 + state.level * 25} CALOI`
+            : `${progress} / 25 PEDALADAS`;
+      }
+
+      function claimDailyQuest() {
+        ensureDailyQuest();
+        if (state.questPedals < 25 || state.questClaimed) return;
+
+        const reward = 250 + state.level * 25;
+        state.coins += reward;
+        state.totalGanho += reward;
+        state.questClaimed = true;
+        save();
+        renderUI();
+        renderRanking();
+        renderStats();
+        showPopup("🎯 META CONCLUÍDA!", `+${reward} CALOI\nVolte amanhã para um novo desafio.`);
+      }
+
       function pegarDiaria() {
         const today = new Date().toDateString();
         if (state.lastDaily === today) return;
@@ -1197,9 +1351,35 @@
         renderUI();
       }
 
+      function openScreen(name) {
+        document.querySelectorAll(".screen").forEach((screen) => screen.classList.remove("active"));
+        document.getElementById(name + "Screen").classList.add("active");
+        document.getElementById("quickMenu").classList.remove("show");
+        document.getElementById("closeBtn").setAttribute("aria-expanded", "false");
+
+        if (name === "shop") renderShop();
+        if (name === "ranking") renderRanking();
+        if (name === "stats") renderStats();
+      }
+
+      function closeScreens() {
+        document.querySelectorAll(".screen").forEach((screen) => screen.classList.remove("active"));
+      }
+
       document.getElementById("pedalBtn").addEventListener("click", pedal);
       document.getElementById("popupBtn").addEventListener("click", closePopup);
       document.getElementById("dailyBtn").addEventListener("click", pegarDiaria);
+      document.getElementById("questBtn").addEventListener("click", claimDailyQuest);
+
+      document.getElementById("closeBtn").addEventListener("click", () => {
+        const menu = document.getElementById("quickMenu");
+        const isOpen = menu.classList.toggle("show");
+        document.getElementById("closeBtn").setAttribute("aria-expanded", String(isOpen));
+      });
+
+      document.querySelectorAll("[data-screen]").forEach((btn) => {
+        btn.addEventListener("click", () => openScreen(btn.getAttribute("data-screen")));
+      });
 
       document.getElementById("pollBtn").addEventListener("click", () => {
         toggleCopilot();
@@ -1221,21 +1401,22 @@
         showPopup("🧠 COPILOTO", "Modo automático pausado.");
       });
 
-      document.getElementById("closeBtn").addEventListener("click", () => {
-        document.getElementById("shopScreen").classList.remove("active");
-        document.getElementById("rankingScreen").classList.remove("active");
-        document.getElementById("statsScreen").classList.remove("active");
-        document.getElementById("app").style.display = "none";
-        document.getElementById("loading").style.display = "none";
-      });
-
       document.querySelectorAll("[data-close]").forEach((btn) => {
         btn.addEventListener("click", () => {
-          const screen = btn.getAttribute("data-close");
-          if (screen === "shop") document.getElementById("shopScreen").classList.remove("active");
-          if (screen === "ranking") document.getElementById("rankingScreen").classList.remove("active");
-          if (screen === "stats") document.getElementById("statsScreen").classList.remove("active");
+          closeScreens();
         });
+      });
+
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+          if (modal.classList.contains("show")) {
+            closePopup();
+            return;
+          }
+          closeScreens();
+          document.getElementById("quickMenu").classList.remove("show");
+          document.getElementById("closeBtn").setAttribute("aria-expanded", "false");
+        }
       });
 
       setInterval(() => {
@@ -1260,6 +1441,7 @@
       });
 
       function init() {
+        ensureDailyQuest();
         renderUI();
         renderShop();
         renderRanking();
