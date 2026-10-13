@@ -1,0 +1,1276 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CALOI 2.0</title>
+    <style>
+      :root {
+        --bg1: #0a1733;
+        --bg2: #1b2d52;
+        --bg3: #2b4370;
+        --gold: #ffd857;
+        --orange: #ff7a18;
+        --red: #e63d4f;
+        --green: #46c96f;
+        --cyan: #7ed9ff;
+        --white: #fff;
+        --dark: #101826;
+      }
+
+      * { box-sizing: border-box; }
+
+      html, body {
+        margin: 0;
+        height: 100%;
+        overflow: hidden;
+        font-family: Arial, Helvetica, sans-serif;
+        background: #000;
+        color: var(--white);
+        user-select: none;
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      body {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(180deg, var(--bg1), var(--bg2), var(--bg3));
+      }
+
+      #app {
+        position: relative;
+        width: 100vw;
+        height: 100vh;
+        overflow: hidden;
+        background: linear-gradient(180deg, #7ccaf6 0%, #9fe1ff 30%, #dff6ff 42%, #f9e9a7 43%, #e5cf92 100%);
+      }
+
+      #app.night {
+        background: linear-gradient(180deg, #081426 0%, #12264c 30%, #1b365f 45%, #41577c 100%);
+      }
+
+      .sun {
+        position: absolute;
+        right: 12%;
+        top: 7%;
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        background: radial-gradient(circle, #fff6b5 0%, #ffe778 60%, #ffc93a 100%);
+        box-shadow: 0 0 40px rgba(255, 217, 92, 0.9), 0 0 100px rgba(255, 194, 73, 0.4);
+      }
+
+      #app.night .sun {
+        background: radial-gradient(circle, #f2f6ff 0%, #dfe7f5 60%, #bfcbe0 100%);
+        box-shadow: 0 0 30px rgba(200, 220, 255, 0.8);
+      }
+
+      .cloud {
+        position: absolute;
+        background: rgba(255,255,255,0.95);
+        border-radius: 50px;
+        opacity: 0.9;
+        box-shadow: 22px 0 0 rgba(255,255,255,0.95), 44px 0 0 rgba(255,255,255,0.95), 22px -18px 0 rgba(255,255,255,0.95), 8px -8px 0 rgba(255,255,255,0.95);
+        animation: cloudMove linear infinite;
+      }
+
+      .cloud1 { top: 8%; left: -80px; width: 60px; height: 22px; animation-duration: 46s; }
+      .cloud2 { top: 15%; left: -120px; width: 45px; height: 18px; animation-duration: 65s; }
+      .cloud3 { top: 5%; left: -90px; width: 36px; height: 14px; animation-duration: 85s; }
+
+      @keyframes cloudMove {
+        from { transform: translateX(0); }
+        to { transform: translateX(130vw); }
+      }
+
+      .bird {
+        position: absolute;
+        font-size: 18px;
+        animation: birdFly linear infinite;
+        opacity: 0.8;
+      }
+
+      @keyframes birdFly {
+        0% { transform: translateX(115vw) translateY(0); }
+        50% { transform: translateX(50vw) translateY(-35px); }
+        100% { transform: translateX(-50px) translateY(0); }
+      }
+
+      .sea {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 22%;
+        height: 15%;
+        background: linear-gradient(180deg, #4d9ed8 0%, #2d75b4 52%, #224b81 100%);
+        overflow: hidden;
+      }
+
+      #app.night .sea {
+        background: linear-gradient(180deg, #184774 0%, #103664 55%, #0a1e3c 100%);
+      }
+
+      .wave {
+        position: absolute;
+        inset: 0;
+        background: repeating-linear-gradient(90deg, transparent 0, transparent 22px, rgba(255,255,255,0.6) 22px, rgba(255,255,255,0.6) 44px);
+        animation: waveMove 4s linear infinite;
+      }
+
+      @keyframes waveMove {
+        from { transform: translateX(0); }
+        to { transform: translateX(-55px); }
+      }
+
+      .sand {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 22%;
+        background:
+          radial-gradient(circle at 15% 20%, #d4b483 1.5px, transparent 1.5px),
+          radial-gradient(circle at 55% 65%, #d4b483 1.5px, transparent 1.5px),
+          radial-gradient(circle at 85% 35%, #d4b483 1px, transparent 1px),
+          linear-gradient(180deg, #f4e4a1 0%, #e8d18f 100%);
+        background-size: 35px 35px, 45px 45px, 30px 30px, 100% 100%;
+      }
+
+      #app.night .sand {
+        filter: brightness(0.6) hue-rotate(180deg);
+      }
+
+      .palm {
+        position: absolute;
+        bottom: 18%;
+        width: 5px;
+        height: 130px;
+        background: linear-gradient(90deg, #735b39 0%, #8d7251 50%, #6e5238 100%);
+        border-radius: 3px;
+      }
+
+      .palm::before,
+      .palm::after {
+        content: "";
+        position: absolute;
+        top: -12px;
+        width: 65px;
+        height: 42px;
+        background: linear-gradient(180deg, #3ec46b 0%, #2b8e45 100%);
+        border-radius: 50% 50% 0 0;
+      }
+
+      .palm::before { left: -60px; transform: rotate(-25deg); }
+      .palm::after { left: -5px; transform: rotate(25deg); }
+
+      .palm1 { left: 6%; transform: scale(0.9); }
+      .palm2 { right: 10%; transform: scale(1.05); }
+      .palm3 { left: 45%; bottom: 11%; transform: scale(0.7); }
+
+      #hud {
+        position: absolute;
+        top: 12px;
+        left: 12px;
+        right: 58px;
+        display: flex;
+        gap: 8px;
+        justify-content: space-between;
+        z-index: 20;
+      }
+
+      .hudBox {
+        flex: 1;
+        min-width: 0;
+        text-align: center;
+        background: rgba(0,0,0,0.72);
+        border: 2px solid var(--gold);
+        border-radius: 14px;
+        padding: 8px 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.35);
+      }
+
+      .hudBox small {
+        display: block;
+        font-size: 9px;
+        letter-spacing: 1px;
+        opacity: 0.9;
+      }
+
+      .hudBox strong {
+        display: block;
+        margin-top: 2px;
+        font-size: 16px;
+        color: var(--gold);
+        font-weight: 800;
+      }
+
+      #levelWrap {
+        position: absolute;
+        top: 76px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: min(70vw, 260px);
+        z-index: 20;
+      }
+
+      #levelTxt {
+        width: 100%;
+        text-align: center;
+        font-weight: 900;
+        font-size: 12px;
+        color: #a8f7ad;
+        background: rgba(0,0,0,0.7);
+        border: 2px solid var(--green);
+        border-radius: 18px;
+        padding: 6px 10px;
+        margin-bottom: 8px;
+        letter-spacing: 1px;
+      }
+
+      #xpBar {
+        width: 100%;
+        height: 8px;
+        background: rgba(0,0,0,0.5);
+        border-radius: 10px;
+        overflow: hidden;
+        border: 1px solid rgba(255,255,255,0.2);
+      }
+
+      #xpFill {
+        width: 0%;
+        height: 100%;
+        background: linear-gradient(90deg, var(--green), #b7f2b6);
+        transition: width 0.2s ease;
+      }
+
+      #achievements {
+        position: absolute;
+        top: 130px;
+        left: 12px;
+        z-index: 20;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+
+      .acheiv {
+        background: rgba(0,0,0,0.65);
+        color: var(--gold);
+        border: 1px solid var(--gold);
+        border-radius: 10px;
+        font-size: 10px;
+        padding: 4px 8px;
+        opacity: 0.45;
+      }
+
+      .acheiv.done {
+        opacity: 1;
+        border-color: var(--green);
+        color: #9cff9b;
+        background: rgba(70,201,111,0.18);
+      }
+
+      #combo {
+        position: absolute;
+        top: 52%;
+        left: 50%;
+        transform: translateX(-50%) scale(0);
+        z-index: 18;
+        font-size: 48px;
+        font-weight: 900;
+        color: var(--gold);
+        text-shadow: 0 0 18px #ff6b35, 4px 4px 0 #000;
+        transition: transform 0.25s ease;
+      }
+
+      #combo.show {
+        transform: translateX(-50%) scale(1);
+      }
+
+      #bike {
+        position: absolute;
+        left: 50%;
+        bottom: 24%;
+        transform: translateX(-50%);
+        font-size: 62px;
+        z-index: 18;
+        filter: drop-shadow(0 6px 0 rgba(0,0,0,0.15));
+        transition: transform 0.15s ease;
+      }
+
+      .coin {
+        position: absolute;
+        font-size: 30px;
+        z-index: 18;
+        animation: coinUp 1.15s ease-out forwards;
+        filter: drop-shadow(0 0 8px rgba(255,215,0,0.9));
+      }
+
+      @keyframes coinUp {
+        0% { opacity: 1; transform: translateY(0) scale(1) rotate(0deg); }
+        50% { opacity: 1; transform: translateY(-60px) scale(1.3) rotate(180deg); }
+        100% { opacity: 0; transform: translateY(-140px) scale(1.6) rotate(360deg); }
+      }
+
+      .confetti {
+        position: absolute;
+        width: 8px;
+        height: 8px;
+        z-index: 17;
+        animation: confettiFall 1.5s ease-out forwards;
+      }
+
+      @keyframes confettiFall {
+        0% { opacity: 1; transform: translateY(0) rotate(0deg); }
+        100% { opacity: 0; transform: translateY(200px) rotate(720deg); }
+      }
+
+      #closeBtn {
+        position: absolute;
+        right: 12px;
+        top: 12px;
+        width: 42px;
+        height: 42px;
+        border-radius: 50%;
+        border: 2px solid #fff;
+        background: rgba(0,0,0,0.65);
+        color: #fff;
+        font-size: 20px;
+        z-index: 30;
+      }
+
+      #pedalBtn {
+        position: absolute;
+        left: 50%;
+        bottom: 26px;
+        transform: translateX(-50%);
+        z-index: 21;
+        border: none;
+        border-radius: 50px;
+        background: linear-gradient(180deg, var(--orange), var(--red));
+        color: #fff;
+        font-weight: 900;
+        letter-spacing: 2px;
+        font-size: 20px;
+        padding: 18px 38px;
+        box-shadow: 0 6px 0 #8b1f2a, 0 10px 22px rgba(0,0,0,0.45);
+      }
+
+      #pollBtn {
+        position: absolute;
+        left: 50%;
+        bottom: 108px;
+        transform: translateX(-50%);
+        z-index: 21;
+        border: none;
+        border-radius: 50px;
+        background: linear-gradient(180deg, #4ba8ff, #2d69e3);
+        color: #fff;
+        font-weight: 900;
+        letter-spacing: 2px;
+        font-size: 14px;
+        padding: 12px 20px;
+        box-shadow: 0 5px 0 #173e99, 0 10px 22px rgba(0,0,0,0.35);
+      }
+
+      .floating-panel {
+        position: absolute;
+        right: 12px;
+        top: 120px;
+        width: 220px;
+        max-width: 58vw;
+        background: rgba(8, 18, 40, 0.9);
+        border: 2px solid rgba(126, 217, 255, 0.7);
+        border-radius: 18px;
+        padding: 12px;
+        z-index: 35;
+        box-shadow: 0 12px 28px rgba(0,0,0,0.35);
+        display: none;
+      }
+
+      .floating-panel.show {
+        display: block;
+      }
+
+      .panel-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 13px;
+        font-weight: 800;
+        color: var(--cyan);
+        margin-bottom: 8px;
+      }
+
+      .status-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: var(--green);
+        box-shadow: 0 0 14px rgba(70,201,111,0.9);
+      }
+
+      #copilotMsg {
+        background: rgba(255,255,255,0.04);
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 12px;
+        padding: 10px;
+        font-size: 12px;
+        line-height: 1.5;
+        color: #dff7ff;
+      }
+
+      .panel-actions {
+        display: flex;
+        gap: 8px;
+        margin-top: 10px;
+      }
+
+      .panel-actions button {
+        flex: 1;
+        border: none;
+        border-radius: 10px;
+        padding: 8px;
+        font-weight: 700;
+        font-size: 12px;
+      }
+
+      .panel-actions .go {
+        background: linear-gradient(180deg, var(--gold), #dba100);
+        color: #111;
+      }
+
+      .panel-actions .pause {
+        background: linear-gradient(180deg, #5ca9ff, #2d69e3);
+        color: white;
+      }
+
+      #loading {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        gap: 26px;
+        background: linear-gradient(180deg, #081c3f 0%, #19355d 100%);
+        z-index: 60;
+        letter-spacing: 6px;
+        font-weight: 800;
+        color: var(--gold);
+      }
+
+      .spinner {
+        width: 52px;
+        height: 52px;
+        border: 5px solid #333;
+        border-top-color: var(--gold);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
+
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
+
+      #popup {
+        position: absolute;
+        inset: 0;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        background: rgba(0,0,0,0.8);
+        z-index: 70;
+        padding: 22px;
+      }
+
+      #popup.show {
+        display: flex;
+        animation: popupIn 0.28s ease;
+      }
+
+      @keyframes popupIn {
+        from { opacity: 0; transform: scale(0.8); }
+        to { opacity: 1; transform: scale(1); }
+      }
+
+      .popupBox {
+        width: min(90vw, 360px);
+        border-radius: 18px;
+        background: #101827;
+        border: 2px solid var(--gold);
+        padding: 22px 18px;
+        text-align: center;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+      }
+
+      .popupBox h2 {
+        margin: 0 0 10px;
+        font-size: 30px;
+        color: var(--gold);
+      }
+
+      .popupBox p {
+        margin: 0 0 18px;
+        color: #fff;
+        line-height: 1.6;
+        white-space: pre-line;
+      }
+
+      .popupBox button {
+        border: none;
+        border-radius: 999px;
+        background: linear-gradient(180deg, var(--gold), #d4a100);
+        color: #000;
+        font-weight: 900;
+        font-size: 17px;
+        padding: 12px 26px;
+      }
+
+      .screen {
+        position: absolute;
+        inset: 0;
+        display: none;
+        background: linear-gradient(180deg, #0b1a3a 0%, #1a2f5a 100%);
+        z-index: 40;
+        overflow-y: auto;
+        padding: 64px 16px 20px;
+      }
+
+      .screen.active {
+        display: block;
+      }
+
+      .screenTitle {
+        text-align: center;
+        font-size: 28px;
+        font-weight: 900;
+        color: var(--gold);
+        letter-spacing: 3px;
+        margin-bottom: 16px;
+      }
+
+      .card {
+        width: min(340px, 100%);
+        margin: 0 auto 12px auto;
+        background: rgba(255,255,255,0.06);
+        border: 2px solid rgba(255,255,255,0.12);
+        border-radius: 16px;
+        padding: 14px 14px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .card.current { border-color: var(--gold); background: rgba(255, 215, 0, 0.1); }
+      .card.owned { border-color: var(--green); background: rgba(70, 201, 111, 0.12); }
+
+      .bikeEmoji { font-size: 38px; min-width: 48px; text-align: center; }
+      .bikeInfo { flex: 1; }
+      .bikeName { font-size: 15px; font-weight: 700; }
+      .bikePrice { font-size: 12px; color: var(--gold); margin-top: 2px; }
+
+      .buyBtn, .useBtn, .activeBtn {
+        border: none;
+        border-radius: 10px;
+        font-weight: 800;
+        font-size: 12px;
+        padding: 9px 12px;
+        min-width: 78px;
+      }
+
+      .buyBtn { background: linear-gradient(180deg, var(--orange), var(--red)); color: white; }
+      .useBtn { background: linear-gradient(180deg, var(--green), #2d7d32); color: white; }
+      .activeBtn { background: var(--gold); color: #000; }
+
+      .list { width: min(340px, 100%); margin: 0 auto; }
+
+      .rankRow {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        background: rgba(255,255,255,0.06);
+        border: 2px solid transparent;
+        border-radius: 12px;
+        padding: 11px 12px;
+        margin-bottom: 8px;
+      }
+
+      .rankRow.me { border-color: var(--gold); background: rgba(255,215,0,0.1); }
+      .rankPos { font-size: 18px; font-weight: 900; color: var(--gold); min-width: 32px; text-align: center; }
+      .rankName { flex: 1; font-size: 14px; color: #fff; }
+      .rankBal { font-size: 13px; font-weight: 800; color: var(--gold); }
+
+      .statRow {
+        width: min(340px, 100%);
+        margin: 0 auto 8px auto;
+        background: rgba(255,255,255,0.06);
+        border-radius: 12px;
+        padding: 12px 16px;
+        display: flex;
+        justify-content: space-between;
+      }
+
+      .dailyBox {
+        width: min(340px, 100%);
+        margin: 0 auto 18px auto;
+        background: linear-gradient(135deg, rgba(255,215,0,0.15), rgba(255,107,53,0.15));
+        border: 2px solid var(--gold);
+        border-radius: 16px;
+        padding: 18px 16px;
+        text-align: center;
+      }
+
+      .dailyBox h3 {
+        margin: 0 0 8px;
+        font-size: 16px;
+        letter-spacing: 2px;
+        color: var(--gold);
+      }
+
+      .dailyBox p {
+        margin: 0 0 14px;
+        color: #fff;
+        font-size: 13px;
+      }
+
+      .dailyBtn {
+        border: none;
+        background: linear-gradient(180deg, var(--green), #2d7d32);
+        color: #fff;
+        font-weight: 900;
+        letter-spacing: 1px;
+        border-radius: 999px;
+        padding: 12px 20px;
+      }
+
+      .dailyBtn:disabled {
+        opacity: 0.5;
+      }
+
+      .closeX {
+        position: absolute;
+        right: 16px;
+        top: 16px;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        border: 2px solid #fff;
+        background: rgba(0,0,0,0.5);
+        color: #fff;
+        font-size: 20px;
+      }
+
+      @media (max-width: 420px) {
+        #pedalBtn { font-size: 18px; padding: 16px 28px; }
+        .hudBox strong { font-size: 14px; }
+        .hudBox small { font-size: 8px; }
+        .screenTitle { font-size: 22px; }
+        .floating-panel { right: 8px; width: 180px; }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <div class="sun"></div>
+      <div class="cloud cloud1"></div>
+      <div class="cloud cloud2"></div>
+      <div class="cloud cloud3"></div>
+
+      <div class="bird" style="top: 22%; animation-duration: 25s;">🦅</div>
+      <div class="bird" style="top: 30%; animation-duration: 40s; animation-delay: -12s;">🐦</div>
+
+      <div class="sea"><div class="wave"></div></div>
+      <div class="sand"></div>
+
+      <div class="palm palm1"></div>
+      <div class="palm palm2"></div>
+      <div class="palm palm3"></div>
+
+      <div id="hud">
+        <div class="hudBox"><small>💰 CALOI</small><strong id="coins">0</strong></div>
+        <div class="hudBox"><small>🚴 PEDAL</small><strong id="pedals">0</strong></div>
+        <div class="hudBox"><small>🔥 STREAK</small><strong id="streak">0</strong></div>
+      </div>
+
+      <div id="levelWrap">
+        <div id="levelTxt">NÍVEL 1</div>
+        <div id="xpBar"><div id="xpFill"></div></div>
+      </div>
+
+      <div id="achievements">
+        <div class="acheiv" id="a1">🚴 10 pedaladas</div>
+        <div class="acheiv" id="a2">💰 500 CALOI</div>
+        <div class="acheiv" id="a3">🔥 20 streak</div>
+        <div class="acheiv" id="a4">⭐ Nível 5</div>
+      </div>
+
+      <div id="combo">🔥 x0</div>
+
+      <div class="floating-panel" id="copilotPanel">
+        <div class="panel-head">
+          <span>🚴 COPILOTO</span>
+          <span class="status-dot"></span>
+        </div>
+        <div id="copilotMsg">Você está em ritmo bom. Continue pedalando com foco para bater a meta de hoje.</div>
+        <div class="panel-actions">
+          <button class="go" type="button" id="copilotGo">ATIVAR</button>
+          <button class="pause" type="button" id="copilotPause">PAUSAR</button>
+        </div>
+      </div>
+
+      <button id="closeBtn" type="button">✕</button>
+      <div id="bike">🚴</div>
+      <button id="pedalBtn" type="button">🚴 PEDALAR</button>
+      <button id="pollBtn" type="button">🧠 COPILOTO</button>
+
+      <div id="popup">
+        <div class="popupBox">
+          <h2 id="popupTitle">🎉</h2>
+          <p id="popupText"></p>
+          <button id="popupBtn" type="button">CONTINUAR</button>
+        </div>
+      </div>
+
+      <div id="loading">
+        <div class="spinner"></div>
+        <div>CALOI</div>
+      </div>
+
+      <div id="shopScreen" class="screen">
+        <button class="closeX" type="button" data-close="shop">✕</button>
+        <div class="screenTitle">🛒 LOJA</div>
+        <div id="shopList"></div>
+      </div>
+
+      <div id="rankingScreen" class="screen">
+        <button class="closeX" type="button" data-close="ranking">✕</button>
+        <div class="screenTitle">🏆 RANKING</div>
+        <div id="rankingList" class="list"></div>
+      </div>
+
+      <div id="statsScreen" class="screen">
+        <button class="closeX" type="button" data-close="stats">✕</button>
+        <div class="screenTitle">📊 ESTATÍSTICAS</div>
+        <div class="dailyBox">
+          <h3>🎁 RECOMPENSA DIÁRIA</h3>
+          <p id="dailyStatus">Volte todo dia e ganhe bônus!</p>
+          <button type="button" id="dailyBtn" class="dailyBtn">PEGAR</button>
+        </div>
+        <div id="statsList"></div>
+      </div>
+    </div>
+
+    <script>
+      const STORAGE_KEYS = {
+        coins: "caloi_coins",
+        pedals: "caloi_pedals",
+        level: "caloi_level",
+        xp: "caloi_xp",
+        streak: "caloi_streak",
+        melhorStreak: "caloi_melhorStreak",
+        totalGanho: "caloi_totalGanho",
+        ach1: "caloi_ach1",
+        ach2: "caloi_ach2",
+        ach3: "caloi_ach3",
+        ach4: "caloi_ach4",
+        bikeAtual: "caloi_bikeAtual",
+        bikesCompradas: "caloi_bikesCompradas",
+        lastDaily: "caloi_lastDaily",
+        bau: "caloi_bau",
+        autoPilot: "caloi_auto_pilot",
+        copilotOpen: "caloi_copilot_open"
+      };
+
+      const BIKES = [
+        { id: "b1", emoji: "🚴", nome: "Bike Comum", preco: 0 },
+        { id: "b2", emoji: "🚵", nome: "Mountain Bike", preco: 500 },
+        { id: "b3", emoji: "🚲", nome: "Bike Vintage", preco: 1500 },
+        { id: "b4", emoji: "🏍️", nome: "Moto", preco: 5000 },
+        { id: "b5", emoji: "🛵", nome: "Scooter", preco: 8000 },
+        { id: "b6", emoji: "🚗", nome: "Carro", preco: 15000 },
+        { id: "b7", emoji: "🚀", nome: "Foguete", preco: 30000 },
+        { id: "b8", emoji: "🛸", nome: "OVNI", preco: 100000 }
+      ];
+
+      const state = {
+        coins: readInt(STORAGE_KEYS.coins, 0),
+        pedals: readInt(STORAGE_KEYS.pedals, 0),
+        level: readInt(STORAGE_KEYS.level, 1),
+        xp: readInt(STORAGE_KEYS.xp, 0),
+        streak: readInt(STORAGE_KEYS.streak, 0),
+        melhorStreak: readInt(STORAGE_KEYS.melhorStreak, 0),
+        totalGanho: readInt(STORAGE_KEYS.totalGanho, 0),
+        ach1: readBool(STORAGE_KEYS.ach1, false),
+        ach2: readBool(STORAGE_KEYS.ach2, false),
+        ach3: readBool(STORAGE_KEYS.ach3, false),
+        ach4: readBool(STORAGE_KEYS.ach4, false),
+        bikeAtual: readString(STORAGE_KEYS.bikeAtual, "b1"),
+        bikesCompradas: readJson(STORAGE_KEYS.bikesCompradas, ["b1"]),
+        lastDaily: readString(STORAGE_KEYS.lastDaily, ""),
+        bau: readInt(STORAGE_KEYS.bau, 0),
+        autoPilot: readBool(STORAGE_KEYS.autoPilot, false),
+        copilotOpen: readBool(STORAGE_KEYS.copilotOpen, true),
+        posX: 50,
+        lastPedal: 0,
+        busy: false
+      };
+
+      const app = document.getElementById("app");
+      const bikeEl = document.getElementById("bike");
+      const coinsEl = document.getElementById("coins");
+      const pedalsEl = document.getElementById("pedals");
+      const streakEl = document.getElementById("streak");
+      const lvlTxt = document.getElementById("levelTxt");
+      const xpFill = document.getElementById("xpFill");
+      const comboEl = document.getElementById("combo");
+      const modal = document.getElementById("popup");
+      const popupTitle = document.getElementById("popupTitle");
+      const popupText = document.getElementById("popupText");
+      const copilotPanel = document.getElementById("copilotPanel");
+      const copilotMsg = document.getElementById("copilotMsg");
+
+      function readInt(key, fallback) {
+        try {
+          const v = localStorage.getItem(key);
+          return v === null ? fallback : parseInt(v, 10) || fallback;
+        } catch {
+          return fallback;
+        }
+      }
+
+      function readBool(key, fallback) {
+        try {
+          const v = localStorage.getItem(key);
+          return v === null ? fallback : v === "1" || v === "true";
+        } catch {
+          return fallback;
+        }
+      }
+
+      function readString(key, fallback) {
+        try {
+          return localStorage.getItem(key) ?? fallback;
+        } catch {
+          return fallback;
+        }
+      }
+
+      function readJson(key, fallback) {
+        try {
+          const v = localStorage.getItem(key);
+          if (!v) return fallback;
+          return JSON.parse(v);
+        } catch {
+          return fallback;
+        }
+      }
+
+      function save() {
+        localStorage.setItem(STORAGE_KEYS.coins, String(state.coins));
+        localStorage.setItem(STORAGE_KEYS.pedals, String(state.pedals));
+        localStorage.setItem(STORAGE_KEYS.level, String(state.level));
+        localStorage.setItem(STORAGE_KEYS.xp, String(state.xp));
+        localStorage.setItem(STORAGE_KEYS.streak, String(state.streak));
+        localStorage.setItem(STORAGE_KEYS.melhorStreak, String(state.melhorStreak));
+        localStorage.setItem(STORAGE_KEYS.totalGanho, String(state.totalGanho));
+        localStorage.setItem(STORAGE_KEYS.ach1, state.ach1 ? "1" : "0");
+        localStorage.setItem(STORAGE_KEYS.ach2, state.ach2 ? "1" : "0");
+        localStorage.setItem(STORAGE_KEYS.ach3, state.ach3 ? "1" : "0");
+        localStorage.setItem(STORAGE_KEYS.ach4, state.ach4 ? "1" : "0");
+        localStorage.setItem(STORAGE_KEYS.bikeAtual, state.bikeAtual);
+        localStorage.setItem(STORAGE_KEYS.bikesCompradas, JSON.stringify(state.bikesCompradas));
+        localStorage.setItem(STORAGE_KEYS.lastDaily, state.lastDaily);
+        localStorage.setItem(STORAGE_KEYS.bau, String(state.bau));
+        localStorage.setItem(STORAGE_KEYS.autoPilot, state.autoPilot ? "1" : "0");
+        localStorage.setItem(STORAGE_KEYS.copilotOpen, state.copilotOpen ? "1" : "0");
+      }
+
+      function xpNeeded(level) {
+        return Math.max(30, level * 100);
+      }
+
+      function renderUI() {
+        const bike = BIKES.find(x => x.id === state.bikeAtual) || BIKES[0];
+        bikeEl.textContent = bike.emoji;
+
+        coinsEl.textContent = state.coins.toLocaleString("pt-BR");
+        pedalsEl.textContent = state.pedals.toLocaleString("pt-BR");
+        streakEl.textContent = state.streak;
+        lvlTxt.textContent = "NÍVEL " + state.level;
+
+        const pct = Math.min(100, (state.xp / xpNeeded(state.level)) * 100);
+        xpFill.style.width = pct + "%";
+
+        document.getElementById("a1").classList.toggle("done", state.ach1);
+        document.getElementById("a2").classList.toggle("done", state.ach2);
+        document.getElementById("a3").classList.toggle("done", state.ach3);
+        document.getElementById("a4").classList.toggle("done", state.ach4);
+
+        copilotPanel.classList.toggle("show", state.copilotOpen);
+        updateCopilotMessage();
+        updateDailyStatus();
+      }
+
+      function updateCopilotMessage() {
+        const bike = BIKES.find(x => x.id === state.bikeAtual) || BIKES[0];
+        const msgs = [
+          `Seu ritmo está forte. Continue no ${bike.emoji} e tente bater 5 streaks seguidas.`,
+          `O copiloto recomenda focar em sequência de pedais. Você está em nível ${state.level}.`,
+          `Meta: chegar em 20 streaks para desbloquear bônus. Seu saldo atual é ${state.coins}.`,
+          `Você está saudável. Continue com um ritmo estável e evite parar.`
+        ];
+
+        const idx = Math.min(msgs.length - 1, Math.floor(state.pedals / 8));
+        copilotMsg.textContent = msgs[Math.min(msgs.length - 1, idx)];
+      }
+
+      function showPopup(title, text) {
+        popupTitle.textContent = title;
+        popupText.textContent = text;
+        modal.classList.add("show");
+      }
+
+      function closePopup() {
+        modal.classList.remove("show");
+      }
+
+      function spawnCoin() {
+        const c = document.createElement("div");
+        c.className = "coin";
+        c.textContent = "💰";
+        c.style.left = state.posX + "%";
+        c.style.bottom = "30%";
+        app.appendChild(c);
+        setTimeout(() => c.remove(), 1200);
+      }
+
+      function spawnConfetti() {
+        for (let i = 0; i < 40; i++) {
+          const c = document.createElement("div");
+          c.className = "confetti";
+          c.style.background = ["#ffd75a", "#ff6b35", "#4caf50", "#4a90d9", "#e63946", "#fff"][Math.floor(Math.random() * 6)];
+          c.style.left = (Math.random() * 100) + "%";
+          c.style.top = "-10px";
+          c.style.animationDelay = (Math.random() * 0.5) + "s";
+          app.appendChild(c);
+          setTimeout(() => c.remove(), 1800);
+        }
+      }
+
+      function levelUpCheck() {
+        while (state.xp >= xpNeeded(state.level)) {
+          state.xp -= xpNeeded(state.level);
+          state.level += 1;
+        }
+      }
+
+      function pedal() {
+        if (state.busy) return;
+
+        const now = Date.now();
+        const delta = now - state.lastPedal;
+        state.streak = delta < 2000 ? state.streak + 1 : 1;
+        state.lastPedal = now;
+
+        if (state.streak > state.melhorStreak) state.melhorStreak = state.streak;
+
+        const base = 4 + Math.floor(Math.random() * 5);
+        const bonusLvl = Math.floor(state.level * 0.8);
+        const bonusStreak = Math.floor(state.streak / 5);
+        const ganho = base + bonusLvl + bonusStreak;
+
+        state.coins += ganho;
+        state.pedals += 1;
+        state.xp += 1;
+        state.totalGanho += ganho;
+        state.bau += ganho;
+        state.posX = Math.max(15, Math.min(85, state.posX + (Math.random() * 22 - 11)));
+
+        bikeEl.style.transform = "translateX(-50%) rotate(-10deg) scale(1.08)";
+        setTimeout(() => bikeEl.style.transform = "translateX(-50%)", 140);
+
+        if (state.streak >= 5 && state.streak % 5 === 0) {
+          comboEl.textContent = "🔥 x" + state.streak;
+          comboEl.classList.add("show");
+          setTimeout(() => comboEl.classList.remove("show"), 700);
+        }
+
+        if (!state.ach1 && state.pedals >= 10) {
+          state.ach1 = true;
+          state.coins += 100;
+          showPopup("🚴 CONQUISTA!", "10 pedaladas!\n+100 CALOI");
+        }
+
+        if (!state.ach2 && state.coins >= 500) {
+          state.ach2 = true;
+          state.coins += 200;
+          showPopup("💰 CONQUISTA!", "500 CALOI!\n+200 CALOI");
+        }
+
+        if (!state.ach3 && state.streak >= 20) {
+          state.ach3 = true;
+          state.coins += 500;
+          showPopup("🔥 CONQUISTA!", "Streak 20!\n+500 CALOI");
+        }
+
+        levelUpCheck();
+
+        if (state.level > 1 && (state.level % 2 === 0 || state.level === 2)) {
+          const extra = state.level * 60;
+          state.coins += extra;
+          showPopup("🎉 LEVEL UP!", `Nível ${state.level}\n+${extra} CALOI`);
+          spawnConfetti();
+        }
+
+        if (!state.ach4 && state.level >= 5) {
+          state.ach4 = true;
+          state.coins += 1000;
+          showPopup("⭐ CONQUISTA!", "Nível 5!\n+1000 CALOI");
+        }
+
+        if (state.bau >= 100) {
+          const premio = 80 + Math.floor(Math.random() * 70);
+          state.bau = 0;
+          state.coins += premio;
+          showPopup("🎁 BAÚ!", `+${premio} CALOI`);
+        }
+
+        spawnCoin();
+        save();
+        renderUI();
+      }
+
+      function renderShop() {
+        const list = document.getElementById("shopList");
+        list.innerHTML = "";
+
+        BIKES.forEach((bike) => {
+          const owned = state.bikesCompradas.includes(bike.id);
+          const current = state.bikeAtual === bike.id;
+          const card = document.createElement("div");
+          card.className = "card" + (current ? " current" : "") + (owned ? " owned" : "");
+
+          let actionHtml = "";
+
+          if (current) {
+            actionHtml = "<button class='activeBtn' type='button'>✓ EM USO</button>";
+          } else if (owned) {
+            actionHtml = `<button class='useBtn' type='button' data-bike='${bike.id}'>USAR</button>`;
+          } else {
+            if (state.coins >= bike.preco) {
+              actionHtml = `<button class='buyBtn' type='button' data-bike='${bike.id}'>COMPRAR</button>`;
+            } else {
+              actionHtml = "<button class='buyBtn' type='button' style='opacity:0.6; cursor:default'>LOCK</button>";
+            }
+          }
+
+          card.innerHTML = `
+            <div class='bikeEmoji'>${bike.emoji}</div>
+            <div class='bikeInfo'>
+              <div class='bikeName'>${bike.nome}</div>
+              <div class='bikePrice'>${bike.preco === 0 ? "GRÁTIS" : bike.preco.toLocaleString("pt-BR") + " CALOI"}</div>
+            </div>
+            ${actionHtml}
+          `;
+
+          list.appendChild(card);
+        });
+
+        list.querySelectorAll("[data-bike]").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            const id = btn.getAttribute("data-bike");
+            const bike = BIKES.find(x => x.id === id);
+
+            if (!state.bikesCompradas.includes(id) && state.coins >= (bike?.preco || 0)) {
+              state.coins -= bike.preco;
+              if (!state.bikesCompradas.includes(id)) state.bikesCompradas.push(id);
+              state.bikeAtual = id;
+              save();
+              renderShop();
+              renderUI();
+              showPopup("🎉 NOVA BICICLETA!", `${bike.emoji} ${bike.nome}`);
+            } else if (state.bikesCompradas.includes(id)) {
+              state.bikeAtual = id;
+              save();
+              renderShop();
+              renderUI();
+            }
+          });
+        });
+      }
+
+      function renderRanking() {
+        const list = document.getElementById("rankingList");
+        list.innerHTML = "";
+
+        const arr = [
+          { nome: "CiclistaPro", saldo: 45000 },
+          { nome: "BikeMaster", saldo: 32000 },
+          { nome: "Pedalador", saldo: 28000 },
+          { nome: "CaloiKing", saldo: 21000 },
+          { nome: "VelozBR", saldo: 15000 },
+          { nome: "TrilhaLoka", saldo: 11000 },
+          { nome: "SpeedRacer", saldo: 8500 },
+          { nome: "BikeLife", saldo: 6200 },
+          { nome: "PedalaMais", saldo: 4300 },
+          { nome: "RodaSolta", saldo: 2900 },
+          { nome: "⭐ VOCÊ", saldo: state.coins, me: true }
+        ];
+
+        arr.sort((a, b) => b.saldo - a.saldo);
+
+        arr.slice(0, 11).forEach((item, index) => {
+          const row = document.createElement("div");
+          row.className = "rankRow" + (item.me ? " me" : "");
+          const medal = index === 0 ? "🥇" : index === 1 ? "🥈" : index === 2 ? "🥉" : index + 1;
+          row.innerHTML = `
+            <div class='rankPos'>${medal}</div>
+            <div class='rankName'>${item.nome}</div>
+            <div class='rankBal'>${item.saldo.toLocaleString("pt-BR")}</div>
+          `;
+          list.appendChild(row);
+        });
+      }
+
+      function updateDailyStatus() {
+        const btn = document.getElementById("dailyBtn");
+        const status = document.getElementById("dailyStatus");
+        const today = new Date().toDateString();
+
+        if (state.lastDaily === today) {
+          btn.disabled = true;
+          btn.textContent = "JÁ PEGOU";
+          status.textContent = "Volte amanhã para mais bônus!";
+        } else {
+          btn.disabled = false;
+          btn.textContent = "PEGAR";
+          status.textContent = "Você tem uma recompensa esperando!";
+        }
+      }
+
+      function pegarDiaria() {
+        const today = new Date().toDateString();
+        if (state.lastDaily === today) return;
+
+        const premio = 500 + state.level * 50;
+        state.coins += premio;
+        state.totalGanho += premio;
+        state.lastDaily = today;
+        save();
+        renderUI();
+        renderRanking();
+        showPopup("🎁 RECOMPENSA DIÁRIA!", `+${premio} CALOI`);
+        updateDailyStatus();
+      }
+
+      function renderStats() {
+        const stats = [
+          { label: "💰 CALOI atual", value: state.coins.toLocaleString("pt-BR") },
+          { label: "📈 Total ganho", value: state.totalGanho.toLocaleString("pt-BR") },
+          { label: "🚴 Total pedaladas", value: state.pedals.toLocaleString("pt-BR") },
+          { label: "⭐ Nível", value: String(state.level) },
+          { label: "🔥 Melhor streak", value: String(state.melhorStreak) },
+          { label: "🚲 Bikes", value: String(state.bikesCompradas.length) },
+          { label: "🏆 Conquistas", value: String([state.ach1, state.ach2, state.ach3, state.ach4].filter(Boolean).length + " / 4") }
+        ];
+
+        const list = document.getElementById("statsList");
+        list.innerHTML = "";
+
+        stats.forEach((s) => {
+          const row = document.createElement("div");
+          row.className = "statRow";
+          row.innerHTML = `<div>${s.label}</div><strong>${s.value}</strong>`;
+          list.appendChild(row);
+        });
+      }
+
+      function toggleCopilot(force) {
+        if (typeof force === "boolean") {
+          state.copilotOpen = force;
+        } else {
+          state.copilotOpen = !state.copilotOpen;
+        }
+        save();
+        renderUI();
+      }
+
+      document.getElementById("pedalBtn").addEventListener("click", pedal);
+      document.getElementById("popupBtn").addEventListener("click", closePopup);
+      document.getElementById("dailyBtn").addEventListener("click", pegarDiaria);
+
+      document.getElementById("pollBtn").addEventListener("click", () => {
+        toggleCopilot();
+        const msg = state.copilotOpen
+          ? "Copiloto ativado. Vou te orientar para manter o ritmo e otimizar ganhos."
+          : "Copiloto pausado. Você pode reativar quando quiser.";
+        showPopup("🧠 COPILOTO", msg);
+      });
+
+      document.getElementById("copilotGo").addEventListener("click", () => {
+        state.autoPilot = true;
+        save();
+        showPopup("🧠 COPILOTO", "Modo automático ativado.\nO assistente vai te ajudar a manter o ritmo.");
+      });
+
+      document.getElementById("copilotPause").addEventListener("click", () => {
+        state.autoPilot = false;
+        save();
+        showPopup("🧠 COPILOTO", "Modo automático pausado.");
+      });
+
+      document.getElementById("closeBtn").addEventListener("click", () => {
+        document.getElementById("shopScreen").classList.remove("active");
+        document.getElementById("rankingScreen").classList.remove("active");
+        document.getElementById("statsScreen").classList.remove("active");
+        document.getElementById("app").style.display = "none";
+        document.getElementById("loading").style.display = "none";
+      });
+
+      document.querySelectorAll("[data-close]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const screen = btn.getAttribute("data-close");
+          if (screen === "shop") document.getElementById("shopScreen").classList.remove("active");
+          if (screen === "ranking") document.getElementById("rankingScreen").classList.remove("active");
+          if (screen === "stats") document.getElementById("statsScreen").classList.remove("active");
+        });
+      });
+
+      setInterval(() => {
+        app.classList.toggle("night", (new Date().getHours() >= 18 || new Date().getHours() < 6));
+      }, 5000);
+
+      setInterval(() => {
+        if (state.autoPilot) {
+          const chance = Math.random();
+          if (chance > 0.45) pedal();
+        }
+      }, 1800);
+
+      document.addEventListener("keydown", (e) => {
+        if (e.code === "Space") {
+          e.preventDefault();
+          pedal();
+        }
+        if (e.key.toLowerCase() === "c") {
+          toggleCopilot();
+        }
+      });
+
+      function init() {
+        renderUI();
+        renderShop();
+        renderRanking();
+        renderStats();
+        updateDailyStatus();
+        setTimeout(() => {
+          document.getElementById("loading").style.display = "none";
+        }, 700);
+      }
+
+      init();
+    </script>
+  </body>
+</html>
